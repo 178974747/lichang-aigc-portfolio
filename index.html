@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="李畅 · AIGC 作品集 — 以生成式影像与数字叙事探索人机共创。"
+    />
+    <title>李畅 · AIGC作品集</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@500;700&family=Syne:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div class="noise" aria-hidden="true"></div>
+
+    <header class="site-header" id="top">
+      <a class="logo" href="#top">李畅</a>
+      <nav class="nav" aria-label="主导航">
+        <a href="#works">作品</a>
+        <a href="#about">关于</a>
+        <a href="#contact">联系</a>
+      </nav>
+      <button class="nav-toggle" type="button" aria-label="打开菜单" aria-expanded="false">
+        <span></span><span></span>
+      </button>
+    </header>
+
+    <main>
+      <section class="hero" aria-label="首页">
+        <div class="hero-media" aria-hidden="true">
+          <div class="hero-orb hero-orb--a"></div>
+          <div class="hero-orb hero-orb--b"></div>
+          <div class="hero-grid"></div>
+          <div class="hero-scan"></div>
+        </div>
+        <div class="hero-content">
+          <p class="brand-mark" data-reveal>李畅</p>
+          <h1 class="hero-title" data-reveal>
+            AIGC 作品集
+          </h1>
+          <p class="hero-lead" data-reveal>
+            用生成式影像与数字叙事，捕捉尚未被命名的瞬间。
+          </p>
+          <div class="hero-actions" data-reveal>
+            <a class="btn btn-primary" href="#works">浏览作品</a>
+            <a class="btn btn-ghost" href="#contact">合作咨询</a>
+          </div>
+        </div>
+        <a class="scroll-cue" href="#works" aria-label="向下滚动到作品">
+          <span>Scroll</span>
+        </a>
+      </section>
+
+      <section class="works" id="works">
+        <div class="section-head">
+          <h2 data-reveal>精选作品</h2>
+          <p data-reveal>从概念到成片，记录每一次人机共创的路径。</p>
+        </div>
+
+        <div class="filters" role="tablist" aria-label="作品分类" data-reveal>
+          <button class="filter is-active" type="button" data-filter="all" role="tab" aria-selected="true">全部</button>
+          <button class="filter" type="button" data-filter="image" role="tab" aria-selected="false">图像</button>
+          <button class="filter" type="button" data-filter="video" role="tab" aria-selected="false">影像</button>
+          <button class="filter" type="button" data-filter="concept" role="tab" aria-selected="false">概念</button>
+        </div>
+
+        <div class="works-grid" id="works-grid">
+          <!-- filled by js -->
+        </div>
+      </section>
+
+      <section class="about" id="about">
+        <div class="about-layout">
+          <div class="about-copy">
+            <h2 data-reveal>关于李畅</h2>
+            <p data-reveal>
+              专注 AIGC 视觉创作与叙事设计。擅长将提示工程、风格研究与后期合成结合，
+              为品牌、展览与数字内容打造具有记忆点的生成式作品。
+            </p>
+            <p data-reveal>
+              工具栈覆盖 Midjourney、Stable Diffusion、Runway、Kling 与 ComfyUI 等工作流，
+              并持续实验文字、图像与动态影像之间的交叉表达。
+            </p>
+            <ul class="tags" data-reveal>
+              <li>生成图像</li>
+              <li>AI 短片</li>
+              <li>概念视觉</li>
+              <li>品牌叙事</li>
+            </ul>
+          </div>
+          <aside class="about-panel" data-reveal aria-label="创作关键词">
+            <p class="about-panel-label">创作信念</p>
+            <p class="about-panel-quote">
+              「模型给出可能性，判断力给出作品。」
+            </p>
+          </aside>
+        </div>
+      </section>
+
+      <section class="contact" id="contact">
+        <div class="contact-inner">
+          <h2 data-reveal>一起做下一部作品</h2>
+          <p data-reveal>品牌视觉、短片概念、展览物料或个人委托，欢迎来信。</p>
+          <a class="contact-mail" href="mailto:lichang.aigc@example.com" data-reveal>
+            lichang.aigc@example.com
+          </a>
+          <div class="socials" data-reveal>
+            <span title="链接待补充">小红书 · 待补充</span>
+            <span title="链接待补充">Bilibili · 待补充</span>
+            <span title="链接待补充">Behance · 待补充</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© <span id="year"></span> 李畅 · AIGC作品集</p>
+      <a href="#top">回到顶部</a>
+    </footer>
+
+    <dialog class="lightbox" id="lightbox" aria-label="作品详情">
+      <button class="lightbox-close" type="button" aria-label="关闭">×</button>
+      <figure class="lightbox-figure">
+        <div class="lightbox-visual" id="lightbox-visual"></div>
+        <figcaption>
+          <h3 id="lightbox-title"></h3>
+          <p id="lightbox-meta"></p>
+          <p id="lightbox-desc"></p>
+        </figcaption>
+      </figure>
+    </dialog>
+
+    <script src="js/works.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>
