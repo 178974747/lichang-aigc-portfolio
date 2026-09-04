@@ -5,24 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="李畅 · AIGC 作品集 — 以生成式影像与数字叙事探索人机共创。"
+      content="李畅 · AIGC 作品集 — 清新自然的生成式创作档案，支持直接上传作品。"
     />
     <title>李畅 · AIGC作品集</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@500;700&family=Syne:wght@600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Noto+Sans+SC:wght@300;400;500;600&family=Noto+Serif+SC:wght@500;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="css/styles.css" />
   </head>
   <body>
-    <div class="noise" aria-hidden="true"></div>
+    <div class="leaf-drift" aria-hidden="true"></div>
 
     <header class="site-header" id="top">
       <a class="logo" href="#top">李畅</a>
       <nav class="nav" aria-label="主导航">
         <a href="#works">作品</a>
+        <a href="#upload">上传</a>
         <a href="#about">关于</a>
         <a href="#contact">联系</a>
       </nav>
@@ -34,45 +35,96 @@
     <main>
       <section class="hero" aria-label="首页">
         <div class="hero-media" aria-hidden="true">
-          <div class="hero-orb hero-orb--a"></div>
-          <div class="hero-orb hero-orb--b"></div>
-          <div class="hero-grid"></div>
-          <div class="hero-scan"></div>
+          <div class="hero-mist hero-mist--a"></div>
+          <div class="hero-mist hero-mist--b"></div>
+          <div class="hero-hill"></div>
         </div>
         <div class="hero-content">
           <p class="brand-mark" data-reveal>李畅</p>
-          <h1 class="hero-title" data-reveal>
-            AIGC 作品集
-          </h1>
+          <h1 class="hero-title" data-reveal>AIGC 作品集</h1>
           <p class="hero-lead" data-reveal>
-            用生成式影像与数字叙事，捕捉尚未被命名的瞬间。
+            在光与草木之间，收藏每一次生成与判断留下的痕迹。
           </p>
           <div class="hero-actions" data-reveal>
             <a class="btn btn-primary" href="#works">浏览作品</a>
-            <a class="btn btn-ghost" href="#contact">合作咨询</a>
+            <a class="btn btn-ghost" href="#upload">上传作品</a>
           </div>
         </div>
         <a class="scroll-cue" href="#works" aria-label="向下滚动到作品">
-          <span>Scroll</span>
+          <span>向下看</span>
         </a>
       </section>
 
       <section class="works" id="works">
         <div class="section-head">
-          <h2 data-reveal>精选作品</h2>
-          <p data-reveal>从概念到成片，记录每一次人机共创的路径。</p>
+          <h2 data-reveal>作品墙</h2>
+          <p data-reveal>上传后的作品会出现在这里，可随时筛选与查看。</p>
         </div>
 
-        <div class="filters" role="tablist" aria-label="作品分类" data-reveal>
-          <button class="filter is-active" type="button" data-filter="all" role="tab" aria-selected="true">全部</button>
-          <button class="filter" type="button" data-filter="image" role="tab" aria-selected="false">图像</button>
-          <button class="filter" type="button" data-filter="video" role="tab" aria-selected="false">影像</button>
-          <button class="filter" type="button" data-filter="concept" role="tab" aria-selected="false">概念</button>
+        <div class="works-toolbar" data-reveal>
+          <div class="filters" role="tablist" aria-label="作品分类">
+            <button class="filter is-active" type="button" data-filter="all" role="tab" aria-selected="true">全部</button>
+            <button class="filter" type="button" data-filter="image" role="tab" aria-selected="false">图像</button>
+            <button class="filter" type="button" data-filter="video" role="tab" aria-selected="false">影像</button>
+            <button class="filter" type="button" data-filter="concept" role="tab" aria-selected="false">概念</button>
+          </div>
+          <p class="works-hint" id="works-count">共 0 件作品</p>
         </div>
 
-        <div class="works-grid" id="works-grid">
-          <!-- filled by js -->
+        <div class="works-grid" id="works-grid"></div>
+        <p class="works-empty" id="works-empty" hidden>
+          还没有作品。去<a href="#upload">上传第一件</a>吧。
+        </p>
+      </section>
+
+      <section class="upload" id="upload">
+        <div class="section-head">
+          <h2 data-reveal>上传作品</h2>
+          <p data-reveal>选择封面图，填写信息后即可加入作品墙。作品保存在本机浏览器中。</p>
         </div>
+
+        <form class="upload-form" id="upload-form" data-reveal novalidate>
+          <label class="dropzone" id="dropzone" for="file-input">
+            <input id="file-input" name="file" type="file" accept="image/*" required />
+            <div class="dropzone-preview" id="dropzone-preview" hidden></div>
+            <div class="dropzone-copy" id="dropzone-copy">
+              <strong>拖拽图片到这里</strong>
+              <span>或点击选择 · 支持 JPG / PNG / WebP</span>
+            </div>
+          </label>
+
+          <div class="form-grid">
+            <label>
+              <span>作品标题</span>
+              <input name="title" type="text" maxlength="80" placeholder="例如：晨雾里的回声" required />
+            </label>
+            <label>
+              <span>分类</span>
+              <select name="category" required>
+                <option value="image">图像</option>
+                <option value="video">影像</option>
+                <option value="concept">概念</option>
+              </select>
+            </label>
+            <label>
+              <span>年份</span>
+              <input name="year" type="text" maxlength="4" placeholder="2026" required />
+            </label>
+            <label>
+              <span>工具</span>
+              <input name="tools" type="text" maxlength="80" placeholder="Midjourney · Photoshop" />
+            </label>
+            <label class="form-span">
+              <span>简介</span>
+              <textarea name="description" rows="3" maxlength="400" placeholder="一句话或一段短述，说说这件作品想留下什么。"></textarea>
+            </label>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit">发布到作品墙</button>
+            <p class="form-note" id="form-status" role="status" aria-live="polite"></p>
+          </div>
+        </form>
       </section>
 
       <section class="about" id="about">
@@ -81,11 +133,11 @@
             <h2 data-reveal>关于李畅</h2>
             <p data-reveal>
               专注 AIGC 视觉创作与叙事设计。擅长将提示工程、风格研究与后期合成结合，
-              为品牌、展览与数字内容打造具有记忆点的生成式作品。
+              为品牌、展览与数字内容打造具有呼吸感的生成式作品。
             </p>
             <p data-reveal>
-              工具栈覆盖 Midjourney、Stable Diffusion、Runway、Kling 与 ComfyUI 等工作流，
-              并持续实验文字、图像与动态影像之间的交叉表达。
+              工具栈覆盖 Midjourney、Stable Diffusion、Runway、Kling 与 ComfyUI，
+              并持续探索文字、图像与动态影像之间的温柔交叉。
             </p>
             <ul class="tags" data-reveal>
               <li>生成图像</li>
@@ -96,9 +148,7 @@
           </div>
           <aside class="about-panel" data-reveal aria-label="创作关键词">
             <p class="about-panel-label">创作信念</p>
-            <p class="about-panel-quote">
-              「模型给出可能性，判断力给出作品。」
-            </p>
+            <p class="about-panel-quote">「让生成像生长一样自然。」</p>
           </aside>
         </div>
       </section>
@@ -132,11 +182,12 @@
           <h3 id="lightbox-title"></h3>
           <p id="lightbox-meta"></p>
           <p id="lightbox-desc"></p>
+          <button class="btn btn-danger" type="button" id="delete-work">删除这件作品</button>
         </figcaption>
       </figure>
     </dialog>
 
-    <script src="js/works.js"></script>
+    <script src="js/storage.js"></script>
     <script src="js/main.js"></script>
   </body>
 </html>

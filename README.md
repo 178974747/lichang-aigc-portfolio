@@ -1,30 +1,32 @@
 # 李畅 · AIGC作品集
 
-个人 AIGC 作品集网站（纯静态，无需构建）。
+清新自然风格的个人 AIGC 作品集（纯静态）。支持在页面内直接上传作品，作品保存在当前浏览器的 IndexedDB 中。
 
-公开站点（GitHub Pages）：推送到本仓库 `main` 分支后，访问  
-`https://<your-username>.github.io/lichang-aigc-portfolio/`
+公开站点：https://178974747.github.io/lichang-aigc-portfolio/
 
 ## 本地预览
-
-用浏览器直接打开 `index.html`，或在项目目录启动本地服务：
 
 ```bash
 npx --yes serve .
 ```
 
-## 公开部署 · GitHub Pages
+或直接用浏览器打开 `index.html`。
 
-1. 将本仓库推送到 GitHub（仓库名 `lichang-aigc-portfolio`）
-2. Settings → Pages → Source 选 `main` 分支、根目录 `/`
-3. 稍等片刻即可获得公开链接：`https://<username>.github.io/lichang-aigc-portfolio/`
+## 上传作品
 
-也可部署到 Cloudflare Pages / Netlify / Vercel：Import 本仓库，构建命令留空，发布目录为 `/`。
+1. 打开站点，进入「上传」
+2. 拖拽或选择封面图（建议不超过 4.5MB）
+3. 填写标题、分类、年份等信息并发布
+4. 作品会出现在「作品墙」；详情页可删除
 
-## 自定义内容
+说明：因 GitHub Pages 无后端，上传内容仅保存在**本机当前浏览器**，换设备或清缓存后需重新上传。
 
-- 作品数据：编辑 `js/works.js`
-- 文案、邮箱与社交链接：编辑 `index.html`
+## 自定义
+
+- 文案与邮箱：编辑 `index.html`
 - 视觉样式：编辑 `css/styles.css`
+- 存储逻辑：编辑 `js/storage.js` / `js/main.js`
 
-替换作品封面时，可在 `works.js` 中为条目增加 `image` 字段，并在 `main.js` 渲染处改为使用背景图。
+## GitHub Pages
+
+推送到 `main` 后自动更新：`https://<username>.github.io/lichang-aigc-portfolio/`
