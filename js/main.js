@@ -5,6 +5,9 @@
     concept: "概念",
   };
 
+  const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
+  const MAX_VIDEO_BYTES = 80 * 1024 * 1024;
+
   const grid = document.getElementById("works-grid");
   const emptyEl = document.getElementById("works-empty");
   const worksCount = document.getElementById("works-count");
@@ -26,19 +29,19 @@
   const dropzoneCopy = document.getElementById("dropzone-copy");
   const dropzonePreview = document.getElementById("dropzone-preview");
   const formStatus = document.getElementById("form-status");
+  const categorySelect = form?.querySelector('[name="category"]');
 
   let works = [];
   let activeFilter = "all";
   let activeId = null;
   let pendingFile = null;
   let previewUrl = null;
+  const mediaUrls = new Map();
 
   if (year) year.textContent = String(new Date().getFullYear());
 
-  form?.querySelector('[name="year"]').setAttribute(
-    "value",
-    String(new Date().getFullYear())
-  );
+  const yearInput = form?.querySelector('[name="year"]');
+  if (yearInput) yearInput.value = String(new Date().getFullYear());
 
   function escapeHtml(value) {
     return String(value)
@@ -46,6 +49,49 @@
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;");
+  }
+
+  function isVideoFile(file) {
+    return Boolean(file && file.type.startsWith("video/"));
+  }
+
+  function isImageFile(file) {
+    return Boolean(file && file.type.startsWith("image/"));
+  }
+
+  function isAllowedFile(file) {
+    return isImageFile(file) || isVideoFile(file);
+  }
+
+  function getMediaType(work) {
+    if (work.mediaType) return work.mediaType;
+    if (work.mediaBlob?.type?.startsWith("video/")) return "video";
+    if (work.imageDataUrl) return "image";
+    return "image";
+  }
+
+  function getMediaUrl(work) {
+    if (mediaUrls.has(work.id)) return mediaUrls.get(work.id);
+
+    if (work.mediaBlob instanceof Blob) {
+      const url = URL.createObjectURL(work.mediaBlob);
+      mediaUrls.set(work.id, url);
+      return url;
+    }
+
+    if (work.imageDataUrl) {
+      mediaUrls.set(work.id, work.imageDataUrl);
+      return work.imageDataUrl;
+    }
+
+    return "";
+  }
+
+  function revokeAllMediaUrls() {
+    mediaUrls.forEach((url) => {
+      if (url.startsWith("blob:")) URL.revokeObjectURL(url);
+    });
+    mediaUrls.clear();
   }
 
   function revokePreview() {
@@ -59,9 +105,28 @@
     pendingFile = file || null;
     revokePreview();
     if (!file || !dropzonePreview || !dropzoneCopy) return;
+
     previewUrl = URL.createObjectURL(file);
     dropzonePreview.hidden = false;
-    dropzonePreview.style.backgroundImage = `url("${previewUrl}")`;
+    dropzonePreview.innerHTML = "";
+    dropzonePreview.style.backgroundImage = "";
+
+    if (isVideoFile(file)) {
+      const video = document.createElement("video");
+      video.src = previewUrl;
+      video.muted = true;
+      video.playsInline = true;
+      video.loop = true;
+      video.autoplay = true;
+      video.setAttribute("playsinline", "");
+      dropzonePreview.appendChild(video);
+      if (categorySelect && categorySelect.value === "image") {
+        categorySelect.value = "video";
+      }
+    } else {
+      dropzonePreview.style.backgroundImage = `url("${previewUrl}")`;
+    }
+
     dropzoneCopy.hidden = true;
     dropzone?.classList.add("has-file");
   }
@@ -72,22 +137,15 @@
     if (fileInput) fileInput.value = "";
     if (dropzonePreview) {
       dropzonePreview.hidden = true;
+      dropzonePreview.innerHTML = "";
       dropzonePreview.style.backgroundImage = "";
     }
     if (dropzoneCopy) dropzoneCopy.hidden = false;
     dropzone?.classList.remove("has-file");
   }
 
-  function fileToDataUrl(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = () => reject(reader.error);
-      reader.readAsDataURL(file);
-    });
-  }
-
   async function refreshWorks() {
+    revokeAllMediaUrls();
     works = await window.PortfolioStore.list();
     renderWorks(activeFilter);
   }
@@ -110,10 +168,18 @@
       .map((work) => {
         const label = work.categoryLabel || CATEGORY_LABELS[work.category] || work.category;
         const tools = work.tools ? ` · ${escapeHtml(work.tools)}` : "";
+        const mediaType = getMediaType(work);
+        const url = getMediaUrl(work);
+        const mediaHtml =
+          mediaType === "video"
+            ? `<video class="work-media" src="${url}" muted loop playsinline preload="metadata"></video>
+               <span class="media-badge" aria-hidden="true">视频</span>`
+            : `<div class="work-media work-media--image" style="background-image:url('${url}')"></div>`;
+
         return `
           <article class="work" data-category="${escapeHtml(work.category)}">
             <button class="work-trigger" type="button" data-id="${escapeHtml(work.id)}" aria-label="查看作品：${escapeHtml(work.title)}">
-              <div class="work-visual" style="background-image:url('${work.imageDataUrl}')"></div>
+              <div class="work-visual">${mediaHtml}</div>
               <div class="work-meta">
                 <div>
                   <h3>${escapeHtml(work.title)}</h3>
@@ -128,12 +194,43 @@
       .join("");
   }
 
+  function stopLightboxMedia() {
+    const media = lightboxVisual?.querySelector("video");
+    if (media) {
+      media.pause();
+      media.removeAttribute("src");
+      media.load();
+    }
+  }
+
   function openWork(id) {
     const work = works.find((item) => item.id === id);
-    if (!work || !lightbox) return;
+    if (!work || !lightbox || !lightboxVisual) return;
     activeId = id;
-    lightboxVisual.style.backgroundImage = `url("${work.imageDataUrl}")`;
-    lightboxVisual.className = "lightbox-visual has-image";
+    stopLightboxMedia();
+    lightboxVisual.innerHTML = "";
+    lightboxVisual.style.backgroundImage = "";
+    lightboxVisual.className = "lightbox-visual";
+
+    const url = getMediaUrl(work);
+    const mediaType = getMediaType(work);
+
+    if (mediaType === "video") {
+      const video = document.createElement("video");
+      video.src = url;
+      video.controls = true;
+      video.playsInline = true;
+      video.setAttribute("playsinline", "");
+      video.className = "lightbox-media";
+      lightboxVisual.appendChild(video);
+      video.play().catch(() => {});
+    } else {
+      const img = document.createElement("div");
+      img.className = "lightbox-media lightbox-media--image";
+      img.style.backgroundImage = `url("${url}")`;
+      lightboxVisual.appendChild(img);
+    }
+
     lightboxTitle.textContent = work.title;
     const label = work.categoryLabel || CATEGORY_LABELS[work.category] || work.category;
     lightboxMeta.textContent = `${label} · ${work.year}${work.tools ? ` · ${work.tools}` : ""}`;
@@ -147,6 +244,8 @@
 
   function closeLightbox() {
     activeId = null;
+    stopLightboxMedia();
+    if (lightboxVisual) lightboxVisual.innerHTML = "";
     if (!lightbox) return;
     if (typeof lightbox.close === "function") {
       lightbox.close();
@@ -175,6 +274,10 @@
 
   lightbox?.addEventListener("click", (event) => {
     if (event.target === lightbox) closeLightbox();
+  });
+
+  lightbox?.addEventListener("close", () => {
+    stopLightboxMedia();
   });
 
   deleteBtn?.addEventListener("click", async () => {
@@ -211,7 +314,13 @@
 
   fileInput?.addEventListener("change", () => {
     const file = fileInput.files?.[0];
-    if (file) setPreview(file);
+    if (!file) return;
+    if (!isAllowedFile(file)) {
+      if (formStatus) formStatus.textContent = "请上传图片或视频文件。";
+      clearPreview();
+      return;
+    }
+    setPreview(file);
   });
 
   ["dragenter", "dragover"].forEach((type) => {
@@ -230,8 +339,8 @@
 
   dropzone?.addEventListener("drop", (event) => {
     const file = event.dataTransfer?.files?.[0];
-    if (!file || !file.type.startsWith("image/")) {
-      if (formStatus) formStatus.textContent = "请上传图片文件。";
+    if (!file || !isAllowedFile(file)) {
+      if (formStatus) formStatus.textContent = "请上传图片或视频文件。";
       return;
     }
     if (fileInput) {
@@ -255,15 +364,25 @@
     const file = pendingFile || fileInput?.files?.[0];
 
     if (!file) {
-      formStatus.textContent = "请先选择封面图片。";
+      formStatus.textContent = "请先选择图片或视频。";
+      return;
+    }
+    if (!isAllowedFile(file)) {
+      formStatus.textContent = "仅支持图片或视频文件。";
       return;
     }
     if (!title || !yearValue) {
       formStatus.textContent = "请填写标题和年份。";
       return;
     }
-    if (file.size > 4.5 * 1024 * 1024) {
-      formStatus.textContent = "图片请控制在 4.5MB 以内。";
+
+    const mediaType = isVideoFile(file) ? "video" : "image";
+    const maxBytes = mediaType === "video" ? MAX_VIDEO_BYTES : MAX_IMAGE_BYTES;
+    if (file.size > maxBytes) {
+      formStatus.textContent =
+        mediaType === "video"
+          ? "视频请控制在 80MB 以内。"
+          : "图片请控制在 8MB 以内。";
       return;
     }
 
@@ -272,7 +391,6 @@
     if (submitBtn) submitBtn.disabled = true;
 
     try {
-      const imageDataUrl = await fileToDataUrl(file);
       const work = {
         id: `work-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         title,
@@ -281,19 +399,21 @@
         year: yearValue,
         tools,
         description,
-        imageDataUrl,
+        mediaType,
+        mediaMime: file.type,
+        mediaBlob: file,
         createdAt: Date.now(),
       };
       await window.PortfolioStore.save(work);
       form.reset();
-      form.querySelector('[name="year"]').value = String(new Date().getFullYear());
+      if (yearInput) yearInput.value = String(new Date().getFullYear());
       clearPreview();
       formStatus.textContent = "已发布到作品墙。";
       await refreshWorks();
       document.getElementById("works")?.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
       console.error(error);
-      formStatus.textContent = "保存失败，请重试。";
+      formStatus.textContent = "保存失败，文件可能过大，请压缩后重试。";
     } finally {
       if (submitBtn) submitBtn.disabled = false;
     }

@@ -80,16 +80,16 @@
       <section class="upload" id="upload">
         <div class="section-head">
           <h2 data-reveal>上传作品</h2>
-          <p data-reveal>选择封面图，填写信息后即可加入作品墙。作品保存在本机浏览器中。</p>
+          <p data-reveal>选择图片或视频，填写信息后即可加入作品墙。作品保存在本机浏览器中。</p>
         </div>
 
         <form class="upload-form" id="upload-form" data-reveal novalidate>
           <label class="dropzone" id="dropzone" for="file-input">
-            <input id="file-input" name="file" type="file" accept="image/*" required />
+            <input id="file-input" name="file" type="file" accept="image/*,video/*" required />
             <div class="dropzone-preview" id="dropzone-preview" hidden></div>
             <div class="dropzone-copy" id="dropzone-copy">
-              <strong>拖拽图片到这里</strong>
-              <span>或点击选择 · 支持 JPG / PNG / WebP</span>
+              <strong>拖拽图片或视频到这里</strong>
+              <span>或点击选择 · 图片 JPG/PNG/WebP · 视频 MP4/WebM</span>
             </div>
           </label>
 
@@ -112,7 +112,7 @@
             </label>
             <label>
               <span>工具</span>
-              <input name="tools" type="text" maxlength="80" placeholder="Midjourney · Photoshop" />
+              <input name="tools" type="text" maxlength="80" placeholder="Runway · Kling · Midjourney" />
             </label>
             <label class="form-span">
               <span>简介</span>
