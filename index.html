@@ -180,7 +180,11 @@
     <dialog class="auth-dialog" id="auth-dialog" aria-label="作者登录">
       <form method="dialog" id="auth-form" class="auth-form">
         <h2>作者管理</h2>
-        <p>访客可观看作品；上传与删除需你的 GitHub Token。</p>
+        <p>访客可观看作品；上传与删除需验证作者身份。</p>
+        <label>
+          <span>管理密码</span>
+          <input name="password" type="password" autocomplete="current-password" required />
+        </label>
         <label>
           <span>GitHub Token（仅写入本仓库 Contents）</span>
           <input
