@@ -10,12 +10,11 @@
 ## 作者如何发布
 
 1. 打开站点，点页脚 **作者管理**
-2. 输入管理密码（默认见 `js/config.js` 的 `adminPassword`，请尽快改成自己的）
-3. 粘贴 **GitHub Token**（仅当前会话保存在浏览器，关标签即失效）
+2. 粘贴 **GitHub Token**（仅当前会话保存在浏览器，关标签即失效）
    - GitHub → Settings → Developer settings → Personal access tokens
    - 建议 Fine-grained：只选仓库 `lichang-aigc-portfolio`，权限 **Contents: Read and write**
-4. 在「上传」区选择图片或视频并公开发布
-5. 约 1 分钟后 Pages 更新，访客即可看到
+3. 在「上传」区选择图片或视频并公开发布
+4. 约 1 分钟后 Pages 更新，访客即可看到
 
 图片建议 ≤ 8MB，视频建议 ≤ 80MB（MP4 / WebM）。
 
@@ -27,11 +26,11 @@ npx --yes serve .
 
 ## 自定义
 
-- 管理密码 / 仓库名：`js/config.js`
+- 仓库名：`js/config.js`
 - 文案：`index.html`
 - 公开作品数据：`data/works.json`
 - 媒体文件：`media/`
 
 ## 说明
 
-管理密码只用于隐藏上传入口；没有有效 Token 无法写入仓库。请勿把 Token 写进代码或提交到 git。
+无额外网站密码。没有有效 Token 无法写入仓库；访客仍只能观看。请勿把 Token 写进代码或提交到 git。

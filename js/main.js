@@ -347,14 +347,8 @@
 
     event.preventDefault();
     const data = new FormData(authForm);
-    const password = String(data.get("password") || "");
     const token = String(data.get("token") || "").trim();
-    const expected = window.PORTFOLIO_CONFIG?.adminPassword || "";
 
-    if (password !== expected) {
-      if (authStatus) authStatus.textContent = "密码不正确。";
-      return;
-    }
     if (!token) {
       if (authStatus) authStatus.textContent = "请填写 GitHub Token。";
       return;
