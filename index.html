@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="李畅 · AIGC 作品集 — 清新自然的生成式创作档案，支持直接上传作品。"
+      content="李畅 · AIGC 作品集 — 清新自然的生成式创作档案。"
     />
     <title>李畅 · AIGC作品集</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -23,9 +23,9 @@
       <a class="logo" href="#top">李畅</a>
       <nav class="nav" aria-label="主导航">
         <a href="#works">作品</a>
-        <a href="#upload">上传</a>
         <a href="#about">关于</a>
         <a href="#contact">联系</a>
+        <a href="#upload" class="nav-admin" id="nav-upload" hidden>上传</a>
       </nav>
       <button class="nav-toggle" type="button" aria-label="打开菜单" aria-expanded="false">
         <span></span><span></span>
@@ -47,7 +47,7 @@
           </p>
           <div class="hero-actions" data-reveal>
             <a class="btn btn-primary" href="#works">浏览作品</a>
-            <a class="btn btn-ghost" href="#upload">上传作品</a>
+            <a class="btn btn-ghost" href="#contact">合作咨询</a>
           </div>
         </div>
         <a class="scroll-cue" href="#works" aria-label="向下滚动到作品">
@@ -58,7 +58,7 @@
       <section class="works" id="works">
         <div class="section-head">
           <h2 data-reveal>作品墙</h2>
-          <p data-reveal>上传后的作品会出现在这里，可随时筛选与查看。</p>
+          <p data-reveal>公开可浏览；仅作者本人可登录后上传与管理。</p>
         </div>
 
         <div class="works-toolbar" data-reveal>
@@ -73,14 +73,16 @@
 
         <div class="works-grid" id="works-grid"></div>
         <p class="works-empty" id="works-empty" hidden>
-          还没有作品。去<a href="#upload">上传第一件</a>吧。
+          还没有公开作品，稍后再来看看。
         </p>
       </section>
 
-      <section class="upload" id="upload">
+      <section class="upload" id="upload" hidden>
         <div class="section-head">
           <h2 data-reveal>上传作品</h2>
-          <p data-reveal>选择图片或视频，填写信息后即可加入作品墙。作品保存在本机浏览器中。</p>
+          <p data-reveal>
+            仅作者可见。发布后会写入 GitHub 仓库，约一分钟后全站访客可见。
+          </p>
         </div>
 
         <form class="upload-form" id="upload-form" data-reveal novalidate>
@@ -121,7 +123,8 @@
           </div>
 
           <div class="form-actions">
-            <button class="btn btn-primary" type="submit">发布到作品墙</button>
+            <button class="btn btn-primary" type="submit">公开发布</button>
+            <button class="btn btn-ghost" type="button" id="admin-logout">退出管理</button>
             <p class="form-note" id="form-status" role="status" aria-live="polite"></p>
           </div>
         </form>
@@ -171,8 +174,38 @@
 
     <footer class="site-footer">
       <p>© <span id="year"></span> 李畅 · AIGC作品集</p>
-      <a href="#top">回到顶部</a>
+      <button class="admin-entry" type="button" id="admin-entry">作者管理</button>
     </footer>
+
+    <dialog class="auth-dialog" id="auth-dialog" aria-label="作者登录">
+      <form method="dialog" id="auth-form" class="auth-form">
+        <h2>作者管理</h2>
+        <p>访客可观看作品；上传与删除需验证作者身份。</p>
+        <label>
+          <span>管理密码</span>
+          <input name="password" type="password" autocomplete="current-password" required />
+        </label>
+        <label>
+          <span>GitHub Token（仅写入本仓库 Contents）</span>
+          <input
+            name="token"
+            type="password"
+            autocomplete="off"
+            placeholder="ghp_… 或 fine-grained token"
+            required
+          />
+        </label>
+        <p class="auth-hint">
+          Token 只保存在当前浏览器会话，关闭标签页即清除。可在 GitHub → Settings →
+          Developer settings 创建，权限勾选本仓库 Contents: Read and write。
+        </p>
+        <div class="auth-actions">
+          <button class="btn btn-ghost" type="submit" value="cancel">取消</button>
+          <button class="btn btn-primary" type="submit" value="login">进入管理</button>
+        </div>
+        <p class="form-note" id="auth-status" role="status" aria-live="polite"></p>
+      </form>
+    </dialog>
 
     <dialog class="lightbox" id="lightbox" aria-label="作品详情">
       <button class="lightbox-close" type="button" aria-label="关闭">×</button>
@@ -182,11 +215,12 @@
           <h3 id="lightbox-title"></h3>
           <p id="lightbox-meta"></p>
           <p id="lightbox-desc"></p>
-          <button class="btn btn-danger" type="button" id="delete-work">删除这件作品</button>
+          <button class="btn btn-danger" type="button" id="delete-work" hidden>删除这件作品</button>
         </figcaption>
       </figure>
     </dialog>
 
+    <script src="js/config.js"></script>
     <script src="js/storage.js"></script>
     <script src="js/main.js"></script>
   </body>

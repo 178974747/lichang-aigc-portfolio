@@ -1,8 +1,23 @@
 # 李畅 · AIGC作品集
 
-清新自然风格的个人 AIGC 作品集（纯静态）。支持在页面内直接上传作品，作品保存在当前浏览器的 IndexedDB 中。
+清新自然风格的个人 AIGC 作品集。
+
+- **访客**：只能浏览公开作品墙（图片 / 视频）
+- **作者**：页脚「作者管理」登录后可上传 / 删除；发布写入 GitHub，全站可见
 
 公开站点：https://178974747.github.io/lichang-aigc-portfolio/
+
+## 作者如何发布
+
+1. 打开站点，点页脚 **作者管理**
+2. 输入管理密码（默认见 `js/config.js` 的 `adminPassword`，请尽快改成自己的）
+3. 粘贴 **GitHub Token**（仅当前会话保存在浏览器，关标签即失效）
+   - GitHub → Settings → Developer settings → Personal access tokens
+   - 建议 Fine-grained：只选仓库 `lichang-aigc-portfolio`，权限 **Contents: Read and write**
+4. 在「上传」区选择图片或视频并公开发布
+5. 约 1 分钟后 Pages 更新，访客即可看到
+
+图片建议 ≤ 8MB，视频建议 ≤ 80MB（MP4 / WebM）。
 
 ## 本地预览
 
@@ -10,23 +25,13 @@
 npx --yes serve .
 ```
 
-或直接用浏览器打开 `index.html`。
-
-## 上传作品
-
-1. 打开站点，进入「上传」
-2. 拖拽或选择图片 / 视频（图片建议 ≤ 8MB，视频建议 ≤ 80MB，推荐 MP4 / WebM）
-3. 填写标题、分类、年份等信息并发布（选视频时会自动倾向「影像」分类）
-4. 作品会出现在「作品墙」；详情页可播放视频或删除
-
-说明：因 GitHub Pages 无后端，上传内容仅保存在**本机当前浏览器**，换设备或清缓存后需重新上传。
-
 ## 自定义
 
-- 文案与邮箱：编辑 `index.html`
-- 视觉样式：编辑 `css/styles.css`
-- 存储逻辑：编辑 `js/storage.js` / `js/main.js`
+- 管理密码 / 仓库名：`js/config.js`
+- 文案：`index.html`
+- 公开作品数据：`data/works.json`
+- 媒体文件：`media/`
 
-## GitHub Pages
+## 说明
 
-推送到 `main` 后自动更新：`https://<username>.github.io/lichang-aigc-portfolio/`
+管理密码只用于隐藏上传入口；没有有效 Token 无法写入仓库。请勿把 Token 写进代码或提交到 git。

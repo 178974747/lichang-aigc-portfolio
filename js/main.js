@@ -7,6 +7,7 @@
 
   const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
   const MAX_VIDEO_BYTES = 80 * 1024 * 1024;
+  const ADMIN_KEY = "lichang-portfolio-admin";
 
   const grid = document.getElementById("works-grid");
   const emptyEl = document.getElementById("works-empty");
@@ -22,7 +23,9 @@
   const header = document.querySelector(".site-header");
   const nav = document.querySelector(".nav");
   const navToggle = document.querySelector(".nav-toggle");
+  const navUpload = document.getElementById("nav-upload");
   const year = document.getElementById("year");
+  const uploadSection = document.getElementById("upload");
   const form = document.getElementById("upload-form");
   const fileInput = document.getElementById("file-input");
   const dropzone = document.getElementById("dropzone");
@@ -30,17 +33,21 @@
   const dropzonePreview = document.getElementById("dropzone-preview");
   const formStatus = document.getElementById("form-status");
   const categorySelect = form?.querySelector('[name="category"]');
+  const yearInput = form?.querySelector('[name="year"]');
+  const adminEntry = document.getElementById("admin-entry");
+  const adminLogout = document.getElementById("admin-logout");
+  const authDialog = document.getElementById("auth-dialog");
+  const authForm = document.getElementById("auth-form");
+  const authStatus = document.getElementById("auth-status");
 
   let works = [];
   let activeFilter = "all";
   let activeId = null;
   let pendingFile = null;
   let previewUrl = null;
-  const mediaUrls = new Map();
+  let isAdmin = sessionStorage.getItem(ADMIN_KEY) === "1";
 
   if (year) year.textContent = String(new Date().getFullYear());
-
-  const yearInput = form?.querySelector('[name="year"]');
   if (yearInput) yearInput.value = String(new Date().getFullYear());
 
   function escapeHtml(value) {
@@ -65,33 +72,28 @@
 
   function getMediaType(work) {
     if (work.mediaType) return work.mediaType;
-    if (work.mediaBlob?.type?.startsWith("video/")) return "video";
-    if (work.imageDataUrl) return "image";
+    if (work.mediaPath && /\.(mp4|webm|mov|m4v)$/i.test(work.mediaPath)) return "video";
     return "image";
   }
 
   function getMediaUrl(work) {
-    if (mediaUrls.has(work.id)) return mediaUrls.get(work.id);
-
-    if (work.mediaBlob instanceof Blob) {
-      const url = URL.createObjectURL(work.mediaBlob);
-      mediaUrls.set(work.id, url);
-      return url;
-    }
-
-    if (work.imageDataUrl) {
-      mediaUrls.set(work.id, work.imageDataUrl);
-      return work.imageDataUrl;
-    }
-
+    if (work.localPreviewUrl) return work.localPreviewUrl;
+    if (work.mediaPath) return work.mediaPath;
     return "";
   }
 
-  function revokeAllMediaUrls() {
-    mediaUrls.forEach((url) => {
-      if (url.startsWith("blob:")) URL.revokeObjectURL(url);
-    });
-    mediaUrls.clear();
+  function setAdminMode(enabled) {
+    isAdmin = Boolean(enabled);
+    if (isAdmin) sessionStorage.setItem(ADMIN_KEY, "1");
+    else {
+      sessionStorage.removeItem(ADMIN_KEY);
+      window.PortfolioStore.setToken("");
+    }
+
+    if (uploadSection) uploadSection.hidden = !isAdmin;
+    if (navUpload) navUpload.hidden = !isAdmin;
+    if (deleteBtn) deleteBtn.hidden = !isAdmin;
+    document.body.classList.toggle("is-admin", isAdmin);
   }
 
   function revokePreview() {
@@ -145,8 +147,8 @@
   }
 
   async function refreshWorks() {
-    revokeAllMediaUrls();
-    works = await window.PortfolioStore.list();
+    works = await window.PortfolioStore.listPublic();
+    works.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
     renderWorks(activeFilter);
   }
 
@@ -156,13 +158,8 @@
 
     const visible = works.filter((work) => filter === "all" || work.category === filter);
 
-    if (worksCount) {
-      worksCount.textContent = `共 ${works.length} 件作品`;
-    }
-
-    if (emptyEl) {
-      emptyEl.hidden = works.length > 0;
-    }
+    if (worksCount) worksCount.textContent = `共 ${works.length} 件作品`;
+    if (emptyEl) emptyEl.hidden = works.length > 0;
 
     grid.innerHTML = visible
       .map((work) => {
@@ -172,9 +169,9 @@
         const url = getMediaUrl(work);
         const mediaHtml =
           mediaType === "video"
-            ? `<video class="work-media" src="${url}" muted loop playsinline preload="metadata"></video>
+            ? `<video class="work-media" src="${escapeHtml(url)}" muted loop playsinline preload="metadata"></video>
                <span class="media-badge" aria-hidden="true">视频</span>`
-            : `<div class="work-media work-media--image" style="background-image:url('${url}')"></div>`;
+            : `<div class="work-media work-media--image" style="background-image:url('${escapeHtml(url)}')"></div>`;
 
         return `
           <article class="work" data-category="${escapeHtml(work.category)}">
@@ -235,11 +232,10 @@
     const label = work.categoryLabel || CATEGORY_LABELS[work.category] || work.category;
     lightboxMeta.textContent = `${label} · ${work.year}${work.tools ? ` · ${work.tools}` : ""}`;
     lightboxDesc.textContent = work.description || "暂无简介";
-    if (typeof lightbox.showModal === "function") {
-      lightbox.showModal();
-    } else {
-      lightbox.setAttribute("open", "");
-    }
+    if (deleteBtn) deleteBtn.hidden = !isAdmin;
+
+    if (typeof lightbox.showModal === "function") lightbox.showModal();
+    else lightbox.setAttribute("open", "");
   }
 
   function closeLightbox() {
@@ -247,11 +243,17 @@
     stopLightboxMedia();
     if (lightboxVisual) lightboxVisual.innerHTML = "";
     if (!lightbox) return;
-    if (typeof lightbox.close === "function") {
-      lightbox.close();
-    } else {
-      lightbox.removeAttribute("open");
-    }
+    if (typeof lightbox.close === "function") lightbox.close();
+    else lightbox.removeAttribute("open");
+  }
+
+  function openAuthDialog() {
+    if (!authDialog) return;
+    if (authStatus) authStatus.textContent = "";
+    const tokenInput = authForm?.querySelector('[name="token"]');
+    if (tokenInput) tokenInput.value = window.PortfolioStore.getToken() || "";
+    if (typeof authDialog.showModal === "function") authDialog.showModal();
+    else authDialog.setAttribute("open", "");
   }
 
   filters.forEach((btn) => {
@@ -271,21 +273,31 @@
   });
 
   closeBtn?.addEventListener("click", closeLightbox);
-
   lightbox?.addEventListener("click", (event) => {
     if (event.target === lightbox) closeLightbox();
   });
-
-  lightbox?.addEventListener("close", () => {
-    stopLightboxMedia();
-  });
+  lightbox?.addEventListener("close", stopLightboxMedia);
 
   deleteBtn?.addEventListener("click", async () => {
-    if (!activeId) return;
-    if (!window.confirm("确定删除这件作品吗？此操作不可撤销。")) return;
-    await window.PortfolioStore.remove(activeId);
-    closeLightbox();
-    await refreshWorks();
+    if (!isAdmin || !activeId) return;
+    if (!window.PortfolioStore.getToken()) {
+      openAuthDialog();
+      return;
+    }
+    if (!window.confirm("确定从公开作品墙删除吗？此操作会同步到 GitHub。")) return;
+
+    deleteBtn.disabled = true;
+    try {
+      await window.PortfolioStore.deleteWork(activeId);
+      closeLightbox();
+      await refreshWorks();
+      if (formStatus) formStatus.textContent = "已删除，访客刷新后将看不到该作品。";
+    } catch (error) {
+      console.error(error);
+      window.alert(`删除失败：${error.message || error}`);
+    } finally {
+      deleteBtn.disabled = false;
+    }
   });
 
   document.addEventListener("keydown", (event) => {
@@ -311,6 +323,50 @@
     },
     { passive: true }
   );
+
+  adminEntry?.addEventListener("click", () => {
+    if (isAdmin) {
+      uploadSection?.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+    openAuthDialog();
+  });
+
+  adminLogout?.addEventListener("click", () => {
+    setAdminMode(false);
+    if (formStatus) formStatus.textContent = "已退出管理。";
+  });
+
+  authForm?.addEventListener("submit", (event) => {
+    const submitter = event.submitter;
+    const value = submitter?.value || "login";
+    if (value === "cancel") {
+      if (authStatus) authStatus.textContent = "";
+      return;
+    }
+
+    event.preventDefault();
+    const data = new FormData(authForm);
+    const password = String(data.get("password") || "");
+    const token = String(data.get("token") || "").trim();
+    const expected = window.PORTFOLIO_CONFIG?.adminPassword || "";
+
+    if (password !== expected) {
+      if (authStatus) authStatus.textContent = "密码不正确。";
+      return;
+    }
+    if (!token) {
+      if (authStatus) authStatus.textContent = "请填写 GitHub Token。";
+      return;
+    }
+
+    window.PortfolioStore.setToken(token);
+    setAdminMode(true);
+    if (typeof authDialog.close === "function") authDialog.close();
+    else authDialog?.removeAttribute("open");
+    uploadSection?.scrollIntoView({ behavior: "smooth" });
+    if (formStatus) formStatus.textContent = "已进入管理模式，可以上传作品。";
+  });
 
   fileInput?.addEventListener("change", () => {
     const file = fileInput.files?.[0];
@@ -353,7 +409,15 @@
 
   form?.addEventListener("submit", async (event) => {
     event.preventDefault();
+    if (!isAdmin) {
+      openAuthDialog();
+      return;
+    }
     if (!formStatus) return;
+    if (!window.PortfolioStore.getToken()) {
+      openAuthDialog();
+      return;
+    }
 
     const data = new FormData(form);
     const title = String(data.get("title") || "").trim();
@@ -380,13 +444,11 @@
     const maxBytes = mediaType === "video" ? MAX_VIDEO_BYTES : MAX_IMAGE_BYTES;
     if (file.size > maxBytes) {
       formStatus.textContent =
-        mediaType === "video"
-          ? "视频请控制在 80MB 以内。"
-          : "图片请控制在 8MB 以内。";
+        mediaType === "video" ? "视频请控制在 80MB 以内。" : "图片请控制在 8MB 以内。";
       return;
     }
 
-    formStatus.textContent = "正在保存…";
+    formStatus.textContent = "正在发布到 GitHub，请稍候…";
     const submitBtn = form.querySelector('[type="submit"]');
     if (submitBtn) submitBtn.disabled = true;
 
@@ -400,20 +462,23 @@
         tools,
         description,
         mediaType,
-        mediaMime: file.type,
-        mediaBlob: file,
         createdAt: Date.now(),
       };
-      await window.PortfolioStore.save(work);
+      const published = await window.PortfolioStore.publishWork(work, file);
       form.reset();
       if (yearInput) yearInput.value = String(new Date().getFullYear());
       clearPreview();
-      formStatus.textContent = "已发布到作品墙。";
+      formStatus.textContent = "已提交发布。约 1 分钟后全站访客可见，可先刷新本页。";
       await refreshWorks();
+      // optimistic if Pages cache still old
+      if (!works.find((item) => item.id === published.id)) {
+        works = [published, ...works];
+        renderWorks(activeFilter);
+      }
       document.getElementById("works")?.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
       console.error(error);
-      formStatus.textContent = "保存失败，文件可能过大，请压缩后重试。";
+      formStatus.textContent = `发布失败：${error.message || "请检查 Token 权限后重试"}`;
     } finally {
       if (submitBtn) submitBtn.disabled = false;
     }
@@ -440,8 +505,13 @@
     revealEls.forEach((el) => el.classList.add("is-visible"));
   }
 
+  setAdminMode(isAdmin && Boolean(window.PortfolioStore.getToken()));
+
   refreshWorks().catch((error) => {
     console.error(error);
-    if (formStatus) formStatus.textContent = "无法读取本地作品库。";
+    if (emptyEl) {
+      emptyEl.hidden = false;
+      emptyEl.textContent = "作品列表加载失败，请稍后刷新。";
+    }
   });
 })();
