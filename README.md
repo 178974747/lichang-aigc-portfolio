@@ -1,8 +1,8 @@
 # 李畅 · AIGC作品集
 
-清新自然风格的个人 AIGC 作品集。
+自然风格的个人 AIGC 作品集（雾绿 · 晨光 · 草木氛围）。
 
-- **访客**：只能浏览公开作品墙（图片 / 视频）
+- **访客**：只能浏览公开作品林（图片 / 视频）
 - **作者**：页脚「作者管理」登录后可上传 / 删除；发布写入 GitHub，全站可见
 
 公开站点：https://178974747.github.io/lichang-aigc-portfolio/
@@ -21,14 +21,19 @@
 
 ## 本地预览
 
+在项目根目录执行：
+
 ```bash
 npx --yes serve .
 ```
 
+浏览器打开终端提示的本地地址（通常是 `http://localhost:3000`）。
+
 ## 自定义
 
 - 管理密码 / 仓库名：`js/config.js`
-- 文案：`index.html`
+- 文案与结构：`index.html`
+- 视觉样式：`css/styles.css`
 - 公开作品数据：`data/works.json`
 - 媒体文件：`media/`
 

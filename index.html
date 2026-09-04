@@ -5,19 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="李畅 · AIGC 作品集 — 清新自然的生成式创作档案。"
+      content="李畅 · AIGC 作品集 — 草木、雾气与生成图像的自然档案。"
     />
     <title>李畅 · AIGC作品集</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Noto+Sans+SC:wght@300;400;500;600&family=Noto+Serif+SC:wght@500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Noto+Sans+SC:wght@300;400;500;600&family=Noto+Serif+SC:wght@500;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="css/styles.css" />
   </head>
   <body>
-    <div class="leaf-drift" aria-hidden="true"></div>
+    <div class="atmosphere" aria-hidden="true">
+      <span class="atmosphere-grain"></span>
+      <span class="atmosphere-leaf atmosphere-leaf--1"></span>
+      <span class="atmosphere-leaf atmosphere-leaf--2"></span>
+      <span class="atmosphere-leaf atmosphere-leaf--3"></span>
+    </div>
 
     <header class="site-header" id="top">
       <a class="logo" href="#top">李畅</a>
@@ -35,29 +40,33 @@
     <main>
       <section class="hero" aria-label="首页">
         <div class="hero-media" aria-hidden="true">
-          <div class="hero-mist hero-mist--a"></div>
-          <div class="hero-mist hero-mist--b"></div>
-          <div class="hero-hill"></div>
+          <div class="hero-sky"></div>
+          <div class="hero-mist hero-mist--far"></div>
+          <div class="hero-mist hero-mist--near"></div>
+          <div class="hero-canopy"></div>
+          <div class="hero-ground"></div>
+          <div class="hero-light"></div>
         </div>
         <div class="hero-content">
           <p class="brand-mark" data-reveal>李畅</p>
-          <h1 class="hero-title" data-reveal>AIGC 作品集</h1>
+          <h1 class="hero-title" data-reveal>生长中的 AIGC 作品集</h1>
           <p class="hero-lead" data-reveal>
-            在光与草木之间，收藏每一次生成与判断留下的痕迹。
+            像晨雾漫过山谷一样，把每一次生成留在光与草木之间。
           </p>
           <div class="hero-actions" data-reveal>
-            <a class="btn btn-primary" href="#works">浏览作品</a>
+            <a class="btn btn-primary" href="#works">走进作品林</a>
             <a class="btn btn-ghost" href="#contact">合作咨询</a>
           </div>
         </div>
         <a class="scroll-cue" href="#works" aria-label="向下滚动到作品">
-          <span>向下看</span>
+          <span>继续向下</span>
         </a>
       </section>
 
       <section class="works" id="works">
         <div class="section-head">
-          <h2 data-reveal>作品墙</h2>
+          <p class="section-kicker" data-reveal>Works</p>
+          <h2 data-reveal>作品林</h2>
           <p data-reveal>公开可浏览；仅作者本人可登录后上传与管理。</p>
         </div>
 
@@ -73,12 +82,13 @@
 
         <div class="works-grid" id="works-grid"></div>
         <p class="works-empty" id="works-empty" hidden>
-          还没有公开作品，稍后再来看看。
+          林间还空着——稍后再来，或请作者种下第一件作品。
         </p>
       </section>
 
       <section class="upload" id="upload" hidden>
         <div class="section-head">
+          <p class="section-kicker" data-reveal>Studio</p>
           <h2 data-reveal>上传作品</h2>
           <p data-reveal>
             仅作者可见。发布后会写入 GitHub 仓库，约一分钟后全站访客可见。
@@ -90,8 +100,8 @@
             <input id="file-input" name="file" type="file" accept="image/*,video/*" required />
             <div class="dropzone-preview" id="dropzone-preview" hidden></div>
             <div class="dropzone-copy" id="dropzone-copy">
-              <strong>拖拽图片或视频到这里</strong>
-              <span>或点击选择 · 图片 JPG/PNG/WebP · 视频 MP4/WebM</span>
+              <strong>拖入图片或视频</strong>
+              <span>或点击选择 · JPG / PNG / WebP · MP4 / WebM</span>
             </div>
           </label>
 
@@ -118,7 +128,7 @@
             </label>
             <label class="form-span">
               <span>简介</span>
-              <textarea name="description" rows="3" maxlength="400" placeholder="一句话或一段短述，说说这件作品想留下什么。"></textarea>
+              <textarea name="description" rows="3" maxlength="400" placeholder="说说这件作品想留下什么。"></textarea>
             </label>
           </div>
 
@@ -133,14 +143,15 @@
       <section class="about" id="about">
         <div class="about-layout">
           <div class="about-copy">
+            <p class="section-kicker" data-reveal>About</p>
             <h2 data-reveal>关于李畅</h2>
             <p data-reveal>
-              专注 AIGC 视觉创作与叙事设计。擅长将提示工程、风格研究与后期合成结合，
-              为品牌、展览与数字内容打造具有呼吸感的生成式作品。
+              专注 AIGC 视觉创作与叙事设计。把提示工程、风格研究与后期合成叠在一起，
+              为品牌、展览与数字内容做出有呼吸感的生成式作品。
             </p>
             <p data-reveal>
-              工具栈覆盖 Midjourney、Stable Diffusion、Runway、Kling 与 ComfyUI，
-              并持续探索文字、图像与动态影像之间的温柔交叉。
+              常用 Midjourney、Stable Diffusion、Runway、Kling 与 ComfyUI，
+              在文字、静帧与动态影像之间寻找温柔的交叉。
             </p>
             <ul class="tags" data-reveal>
               <li>生成图像</li>
@@ -149,7 +160,7 @@
               <li>品牌叙事</li>
             </ul>
           </div>
-          <aside class="about-panel" data-reveal aria-label="创作关键词">
+          <aside class="about-panel" data-reveal aria-label="创作信念">
             <p class="about-panel-label">创作信念</p>
             <p class="about-panel-quote">「让生成像生长一样自然。」</p>
           </aside>
@@ -158,6 +169,7 @@
 
       <section class="contact" id="contact">
         <div class="contact-inner">
+          <p class="section-kicker" data-reveal>Contact</p>
           <h2 data-reveal>一起做下一部作品</h2>
           <p data-reveal>品牌视觉、短片概念、展览物料或个人委托，欢迎来信。</p>
           <a class="contact-mail" href="mailto:lichang.aigc@example.com" data-reveal>
